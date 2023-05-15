@@ -44,8 +44,6 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private static final int PERMISSION_REQUEST_CODE = 1;
-
     // System sensor manager instance.
     private SensorManager mSensorManager;
 
@@ -110,24 +108,48 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         mDisplay = wm.getDefaultDisplay();
 
-        View saveButton = (Button) findViewById(R.id.Simpan);
-
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkPermission()) {
-                    saveData();
-                } else {
-                    requestPermission();
-                }
+                saveValuesToFile();
             }
         });
+
+    }
+
+    private void saveValuesToFile() {
+        String azimuthValue = mTextSensorAzimuth.getText().toString();
+        String pitchValue = mTextSensorPitch.getText().toString();
+        String rollValue = mTextSensorRoll.getText().toString();
+
+        // Create a new file in external storage directory
+        File directory = Environment.getExternalStorageDirectory();
+        File file = new File(directory, "MainActivity.txt");
+
+        try {
+            // Open a file output stream
+            FileOutputStream fos = new FileOutputStream(file);
+
+            // Write the values to the file
+            fos.write(("Azimuth: " + azimuthValue + "\n").getBytes());
+            fos.write(("Pitch: " + pitchValue + "\n").getBytes());
+            fos.write(("Roll: " + rollValue + "\n").getBytes());
+
+            // Close the file output stream
+            fos.close();
+
+            Toast.makeText(this, "Values saved to file", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to save values", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
      * Listeners for the sensors are registered in this callback so that
      * they can be unregistered in onStop().
      */
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -181,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // The second argument is an inclination matrix, which isn't
         // used in this example.
         float[] rotationMatrix = new float[9];
+
         boolean rotationOK = SensorManager.getRotationMatrix(rotationMatrix,
                 null, mAccelerometerData, mMagnetometerData);
 
@@ -210,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Get the orientation of the device (azimuth, pitch, roll) based
         // on the rotation matrix. Output units are radians.
         float orientationValues[] = new float[3];
+
         if (rotationOK) {
             SensorManager.getOrientation(rotationMatrixAdjusted,
                     orientationValues);
@@ -266,47 +290,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-    }
-
-    private boolean checkPermission() {
-        int result = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return result == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                saveData();
-            } else {
-                Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void saveData() {
-        String data = mTextSensorAzimuth.getText().toString() + "\n" +
-                mTextSensorPitch.getText().toString() + "\n" +
-                mTextSensorRoll.getText().toString();
-
-        String filename = "my_data.txt";
-        File directory = Environment.getExternalStorageDirectory();
-        File file = new File(directory, filename);
-
-        FileOutputStream outputStream;
-
-        try {
-            outputStream = new FileOutputStream(file);
-            outputStream.write(data.getBytes());
-            outputStream.close();
-            Toast.makeText(getApplicationContext(), "Data saved to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Error saving data", Toast.LENGTH_SHORT).show();
-        }
     }
 }
