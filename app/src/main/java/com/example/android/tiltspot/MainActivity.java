@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // be interpreted as 0. This value is the amount of acceptable
     // non-zero drift.
     private static final float VALUE_DRIFT = 0.05f;
-
     private void saveValuesToFile() {
         // Get the text from the three TextViews
         String azimuthValue = mTextSensorAzimuth.getText().toString();
