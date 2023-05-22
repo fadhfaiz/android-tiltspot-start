@@ -40,6 +40,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -78,6 +79,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // non-zero drift.
     private static final float VALUE_DRIFT = 0.05f;
 
+    private void saveValuesToFile() {
+        // Get the text from the three TextViews
+        String azimuthValue = mTextSensorAzimuth.getText().toString();
+        String pitchValue = mTextSensorPitch.getText().toString();
+        String rollValue = mTextSensorRoll.getText().toString();
+
+        // Concatenate the three strings into a single string
+        String allText = "Data Sensor TiltSpot sebagai berikut:" +
+                "\n- Sensor Azimuth: " + azimuthValue +
+                "\n- Sensor Pitch: " + pitchValue+
+                "\n- Sensor Roll: " + rollValue;
+
+        // Create a new file to store the text
+        File textFile = new File(getExternalFilesDir(null), "save.txt");
+
+        try {
+            // Write the text to the file
+            FileWriter writer = new FileWriter(textFile);
+            writer.write(allText);
+            writer.close();
+            // Show a toast message to indicate that the text has been saved
+            Toast.makeText(this, "Text saved to " + textFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,34 +142,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-    }
-
-    private void saveValuesToFile() {
-        String azimuthValue = mTextSensorAzimuth.getText().toString();
-        String pitchValue = mTextSensorPitch.getText().toString();
-        String rollValue = mTextSensorRoll.getText().toString();
-
-        // Create a new file in external storage directory
-        File directory = Environment.getExternalStorageDirectory();
-        File file = new File(directory, "MainActivity.txt");
-
-        try {
-            // Open a file output stream
-            FileOutputStream fos = new FileOutputStream(file);
-
-            // Write the values to the file
-            fos.write(("Azimuth: " + azimuthValue + "\n").getBytes());
-            fos.write(("Pitch: " + pitchValue + "\n").getBytes());
-            fos.write(("Roll: " + rollValue + "\n").getBytes());
-
-            // Close the file output stream
-            fos.close();
-
-            Toast.makeText(this, "Values saved to file", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to save values", Toast.LENGTH_SHORT).show();
-        }
     }
 
     /**
