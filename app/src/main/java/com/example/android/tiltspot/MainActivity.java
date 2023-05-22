@@ -85,21 +85,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String rollValue = mTextSensorRoll.getText().toString();
 
         // Concatenate the three strings into a single string
-        String allText = "TiltSpot Values:" +
+        String sensorValue = "TiltSpot Values:" +
                 "\n- Sensor Azimuth: " + azimuthValue +
                 "\n- Sensor Pitch: " + pitchValue+
                 "\n- Sensor Roll: " + rollValue;
 
         // Create a new file to store the text
-        File textFile = new File(getExternalFilesDir(null), "MainActivity.txt");
+        File stringValue = new File(getExternalFilesDir(null), "MainActivity.txt");
 
         try {
             // Write the text to the file
-            FileWriter writer = new FileWriter(textFile);
-            writer.write(allText);
+            FileWriter writer = new FileWriter(stringValue);
+            writer.write(sensorValue);
             writer.close();
             // Show a toast message to indicate that the text has been saved
-            Toast.makeText(this, "Values saved to " + textFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Values saved to " + stringValue.getAbsolutePath(), Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
